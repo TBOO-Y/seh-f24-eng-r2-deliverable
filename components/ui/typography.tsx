@@ -40,6 +40,13 @@ export const TypographyH4 = React.forwardRef<HTMLHeadingElement, ComponentPropsW
 );
 TypographyH4.displayName = "TypographyH4";
 
+export const TypographyH5 = React.forwardRef<HTMLHeadingElement, ComponentPropsWithoutRef<"h5">>(
+  ({ className, ...props }, ref) => (
+    <h5 ref={ref} className={cn("scroll-m-20 text-xl font-semibold tracking-tight", className)} {...props} />
+  ),
+);
+TypographyH5.displayName = "TypographyH5";
+
 export const TypographyP = React.forwardRef<HTMLParagraphElement, ComponentPropsWithoutRef<"p">>(
   ({ className, ...props }, ref) => (
     <p ref={ref} className={cn("leading-7 [&:not(:first-child)]:mt-6", className)} {...props} />
