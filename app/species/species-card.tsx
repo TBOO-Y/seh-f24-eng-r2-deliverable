@@ -12,6 +12,7 @@ can cause errors with matching props and state in child components if the list o
 */
 // import { Button } from "@/components/ui/button";
 import LearnMoreDialog from "./learn-more-dialog"
+import EditSpeciesDialog from "./edit-species-dialog";
 import type { Database } from "@/lib/schema";
 import Image from "next/image";
 type Species = Database["public"]["Tables"]["species"]["Row"];
@@ -28,8 +29,9 @@ export default function SpeciesCard({ species }: { species: Species }) {
       <h4 className="text-lg font-light italic">{species.common_name}</h4>
       <p>{species.description ? species.description.slice(0, 150).trim() + "..." : ""}</p>
       {/* Replace the button with the detailed view dialog. */}
-      {/* <Button className="mt-3 w-full">Learn More</Button> */}
+      {/* Change the code so that the edit species button only appears if its editable */}
       <LearnMoreDialog species={ species }/>
+      <EditSpeciesDialog species={ species }/>
     </div>
   );
 }
