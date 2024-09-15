@@ -4,7 +4,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -20,9 +19,10 @@ import { createBrowserSupabaseClient } from "@/lib/client-utils";
 import type { Database } from "@/lib/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState, type BaseSyntheticEvent } from "react";
+import { useState, type BaseSyntheticEvent, type MouseEvent } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+// import { createServerSupabaseClient } from "@/lib/server-utils";
 // import Image from "next/image";
 
 // We use zod (z) to define a schema for the "Add species" form.
@@ -69,23 +69,25 @@ Otherwise, they will be `undefined` by default, which will raise warnings becaus
 All form fields should be set to non-undefined default values.
 Read more here: https://legacy.react-hook-form.com/api/useform/
 */
-const defaultValues: Partial<FormData> = {
-  scientific_name: "",
-  common_name: null,
-  kingdom: "Animalia",
-  total_population: null,
-  image: null,
-  description: null,
-};
 
 export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ { species }: { species: Species }) {
+
+  const defaultValues: Partial<FormData> = {
+    scientific_name: species.scientific_name,
+    common_name: species.common_name,
+    kingdom: species.kingdom,
+    total_population: species.total_population,
+    image: species.image,
+    description: species.description,
+  };
+
   const router = useRouter();
 
   // Control open/closed state of the dialog
   const [open, setOpen] = useState<boolean>(false);
 
   // Set whether user is currently editing
-  // const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(speciesSchema),
@@ -97,14 +99,17 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
     // Probably need to adapt this for editing somehow
     // The `input` prop contains data that has already been processed by zod. We can now use it in a supabase query
     const supabase = createBrowserSupabaseClient();
-    const { error } = await supabase.from("species").update({
-      scientific_name: species.scientific_name,
-      common_name: species.common_name,
-      total_population: species.total_population,
-      kingdom: species.kingdom,
-      description: species.description,
-      image: species.image,
-    });
+    const { error } = await supabase
+      .from("species")
+      .update({
+        scientific_name: input.scientific_name,
+        common_name: input.common_name,
+        total_population: input.total_population,
+        kingdom: input.kingdom,
+        description: input.description,
+        image: input.image,
+      })
+      .eq("id", species.id);
 
     // Catch and report errors from Supabase and exit the onSubmit function with an early 'return' if an error occurred.
     if (error) {
@@ -117,7 +122,7 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
 
     // Because Supabase errors were caught above, the remainder of the function will only execute upon a successful edit
 
-    // setIsEditing(false);
+    setIsEditing(false);
 
     // Reset form values to the default (empty) values.
     // Practically, this line can be removed because router.refresh() also resets the form. However, we left it as a reminder that you should generally consider form "cleanup" after an add/edit operation.
@@ -133,6 +138,25 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
       title: "Species edited!",
       description: "Successfully edited " + input.scientific_name + ".",
     });
+  };
+
+  const startEditing = (e: MouseEvent) => {
+    e.preventDefault();
+
+    setIsEditing(true);
+  };
+
+  const handleCancel = (e: MouseEvent) => {
+    if (!window.confirm("Revert all unsaved changes?")) {
+      return;
+    } // Makes sure user doesn't accidentally cancel when they don't want to
+
+    e.preventDefault();
+
+    // If edit canceled, reset the form data to the original values which were set from props
+    form.reset(defaultValues);
+    // Turn off editing mode
+    setIsEditing(false);
   };
 
   return (
@@ -159,7 +183,7 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
                   <FormItem>
                     <FormLabel>Scientific Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Cavia porcellus" {...field} />
+                      <Input readOnly={!isEditing} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -175,7 +199,7 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
                     <FormItem>
                       <FormLabel>Common Name</FormLabel>
                       <FormControl>
-                        <Input value={value ?? ""} placeholder="Guinea pig" {...rest} />
+                        <Input readOnly={!isEditing} value={value ?? ""} {...rest} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -188,10 +212,14 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Kingdom</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(kingdoms.parse(value))} value={field.value}>
+                    <Select
+                      disabled={!isEditing}
+                      onValueChange={(value) => field.onChange(kingdoms.parse(value))}
+                      value={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a kingdom" />
+                          <SelectValue />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -219,9 +247,9 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
                       <FormControl>
                         {/* Using shadcn/ui form with number: https://github.com/shadcn-ui/ui/issues/421 */}
                         <Input
+                          readOnly={!isEditing}
                           type="number"
                           value={value ?? ""}
-                          placeholder="300000"
                           {...rest}
                           onChange={(event) => field.onChange(+event.target.value)}
                         />
@@ -241,11 +269,7 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
                     <FormItem>
                       <FormLabel>Image URL</FormLabel>
                       <FormControl>
-                        <Input
-                          value={value ?? ""}
-                          placeholder="https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/George_the_amazing_guinea_pig.jpg/440px-George_the_amazing_guinea_pig.jpg"
-                          {...rest}
-                        />
+                        <Input readOnly={!isEditing} value={value ?? ""} {...rest} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -262,28 +286,52 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Textarea
-                          value={value ?? ""}
-                          placeholder="The guinea pig or domestic guinea pig, also known as the cavy or domestic cavy, is a species of rodent belonging to the genus Cavia in the family Caviidae."
-                          {...rest}
-                        />
+                        <Textarea readOnly={!isEditing} value={value ?? ""} {...rest} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   );
                 }}
               />
-              <div className="flex">
+              {/* <div className="flex">
                 <Button type="submit" className="ml-1 mr-1 flex-auto">
-                  Save Changes
+                  Edit Species
                 </Button>
                 <DialogClose asChild>
                   <Button type="button" className="ml-1 mr-1 flex-auto" variant="secondary">
                     Cancel
                   </Button>
                 </DialogClose>
-              </div>
+              </div> */}
             </div>
+            {/* Conditionally render action buttons depending on if the form is in viewing/editing mode */}
+            {/*isEditing ? (
+              <>
+                <Button type="submit" className="mr-2">
+                  Update profile
+                </Button>
+                <Button variant="secondary" onClick={handleCancel}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              // Toggle editing mode
+              <Button onClick={startEditing}>Edit Profile</Button>
+            ) */}
+            {isEditing ? (
+              <>
+                <Button type="submit" className="ml-1 mr-1 flex-auto">
+                  Confirm
+                </Button>
+                <Button type="reset" variant="secondary" onClick={handleCancel} className="ml-1 mr-1 flex-auto">
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button onClick={startEditing} type="button" className="ml-1 mr-1 flex-auto">
+                Edit Species
+              </Button>
+            )}
           </form>
         </Form>
       </DialogContent>
