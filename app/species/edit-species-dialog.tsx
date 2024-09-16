@@ -1,6 +1,5 @@
 "use client";
 
-// import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,11 +21,6 @@ import { useRouter } from "next/navigation";
 import { useState, type BaseSyntheticEvent, type MouseEvent } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-// import { createServerSupabaseClient } from "@/lib/server-utils";
-// import Image from "next/image";
-
-// We use zod (z) to define a schema for the "Add species" form.
-// zod handles validation of the input values with methods like .string(), .nullable(). It also processes the form inputs with .transform() before the inputs are sent to the database.
 
 // Define kingdom enum for use in Zod schema and displaying dropdown options in the form
 const kingdoms = z.enum(["Animalia", "Plantae", "Fungi", "Protista", "Archaea", "Bacteria"]);
@@ -292,31 +286,7 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
                   );
                 }}
               />
-              {/* <div className="flex">
-                <Button type="submit" className="ml-1 mr-1 flex-auto">
-                  Edit Species
-                </Button>
-                <DialogClose asChild>
-                  <Button type="button" className="ml-1 mr-1 flex-auto" variant="secondary">
-                    Cancel
-                  </Button>
-                </DialogClose>
-              </div> */}
             </div>
-            {/* Conditionally render action buttons depending on if the form is in viewing/editing mode */}
-            {/*isEditing ? (
-              <>
-                <Button type="submit" className="mr-2">
-                  Update profile
-                </Button>
-                <Button variant="secondary" onClick={handleCancel}>
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              // Toggle editing mode
-              <Button onClick={startEditing}>Edit Profile</Button>
-            ) */}
             <div className="flex">
               {isEditing ? (
                 <>

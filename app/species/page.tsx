@@ -3,7 +3,6 @@ import { TypographyH2 } from "@/components/ui/typography";
 import { createServerSupabaseClient } from "@/lib/server-utils";
 import { redirect } from "next/navigation";
 import AddSpeciesDialog from "./add-species-dialog";
-// import EditSpeciesDialog from "./edit-species-dialog";
 import SpeciesCard from "./species-card";
 
 export default async function SpeciesList() {

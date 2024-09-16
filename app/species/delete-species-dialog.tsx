@@ -1,6 +1,5 @@
 "use client";
 
-// import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,8 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"; //
 import { Input } from "@/components/ui/input";
-// import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-// import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { createBrowserSupabaseClient } from "@/lib/client-utils";
 import type { Database } from "@/lib/schema";
@@ -23,7 +20,6 @@ import { useRouter } from "next/navigation";
 import { useState, type BaseSyntheticEvent } from "react"; //add type BaseSyntheticEvent later
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-// import Image from "next/image";
 
 // We use zod (z) to define a schema for the "Add species" form.
 // zod handles validation of the input values with methods like .string(), .nullable(). It also processes the form inputs with .transform() before the inputs are sent to the database.

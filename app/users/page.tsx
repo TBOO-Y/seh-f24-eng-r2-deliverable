@@ -2,7 +2,6 @@ import { Separator } from "@/components/ui/separator";
 import { TypographyH2 } from "@/components/ui/typography";
 import { createServerSupabaseClient } from "@/lib/server-utils";
 import { redirect } from "next/navigation";
-// import EditSpeciesDialog from "./edit-species-dialog";
 import UsersCard from "./users-card";
 
 export default async function SpeciesList() {
