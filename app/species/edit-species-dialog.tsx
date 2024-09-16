@@ -71,7 +71,6 @@ Read more here: https://legacy.react-hook-form.com/api/useform/
 */
 
 export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ { species }: { species: Species }) {
-
   const defaultValues: Partial<FormData> = {
     scientific_name: species.scientific_name,
     common_name: species.common_name,
@@ -318,20 +317,22 @@ export default function EditSpeciesDialog(/*{ userId }: { userId: string }, */ {
               // Toggle editing mode
               <Button onClick={startEditing}>Edit Profile</Button>
             ) */}
-            {isEditing ? (
-              <>
-                <Button type="submit" className="ml-1 mr-1 flex-auto">
-                  Confirm
+            <div className="flex">
+              {isEditing ? (
+                <>
+                  <Button type="submit" className="ml-1 mr-1 mt-2 flex-auto">
+                    Confirm
+                  </Button>
+                  <Button type="reset" variant="secondary" onClick={handleCancel} className="ml-1 mr-1 mt-2 flex-auto">
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={startEditing} type="button" className="ml-1 mr-1 mt-2 flex-auto">
+                  Edit Species
                 </Button>
-                <Button type="reset" variant="secondary" onClick={handleCancel} className="ml-1 mr-1 flex-auto">
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <Button onClick={startEditing} type="button" className="ml-1 mr-1 flex-auto">
-                Edit Species
-              </Button>
-            )}
+              )}
+            </div>
           </form>
         </Form>
       </DialogContent>
